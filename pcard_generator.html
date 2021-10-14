@@ -24,15 +24,15 @@
 		<!-- Form -->
 		<form action="" id="pcardForm">
 			<div class="form-group">
-				<label for="pcardName">Name of PCard Holder</label>
+				<label for="pcardName">Name of PCard Holder*</label>
 				<input type="text" name="pcardName" id="pcardName" class="form-control" required>
 			</div>
 			<div class="form-group">
-				<label for="pAmount">Charge Amount</label>
+				<label for="pAmount">Charge Amount*</label>
 				<input type="number" step="0.01" name="pAmount" id="pAmount" class="form-control" required>
 			</div>
 			<div class="form-group">
-				<label for="purpose">What was this purchase for?</label>
+				<label for="purpose">What was this purchase for?*</label>
 				<input type="text" name="purpose" id="purpose" class="form-control" required>
 			</div>
 			<div class="form-group">
@@ -44,7 +44,7 @@
 				<input type="checkbox" name="sponsorCheck" id="sponsorCheck" class="form-check">
 			</div>
 			<div class="form-group">
-				<label for="chartfield">What is the chartfield for this expense?</label>
+				<label for="chartfield">What is the chartfield for this expense?*</label>
 				<input type="text" name="chartfield" id="chartfield" class="form-control" required>
 			</div>
 			<div class="form-group">
@@ -55,6 +55,14 @@
 				<small class="mb-5">"I have already gone into the PCard module and uploaded a receipt of this charge, as well as filled in the distribution/chartfield. 
 					Please leave the billing description as is. Many thanks."
 				</small>
+				<div class="form-group mt-3">
+					<label for="accountCode">What account code did you use?</label>
+					<input type="text" name="accountCode" id="accountCode" class="form-control">
+				</div>
+				<div class="form-group">
+					<label for="categoryCode">What category code did you use?</label>
+					<input type="text" name="categoryCode" id="categoryCode" class="form-control">
+				</div>
 			</div>
 			<div class="form-group" id="billingForm">
 				<label for="billingDescription">What should the billing description be for this expense?</label>
@@ -84,6 +92,9 @@
 
 		let moduleCheck = document.getElementById('moduleCheck');
 		let billingDescription = document.getElementById('billingDescription');
+		let accountCode = document.getElementById('accountCode');
+		let categoryCode = document.getElementById('categoryCode');
+
 
 		moduleForm.style['display'] = 'none';
 
@@ -91,7 +102,7 @@
 		moduleCheck.addEventListener('click', () => {
 			moduleCheck.checked ? 
 			moduleForm.style['display'] = 'block':
-			moduleForm.style['display'] = 'none';
+			uncheck(moduleForm, accountCode, categoryCode);
 		});
 		moduleCheck.addEventListener('click', () => {
 			moduleCheck.checked ? 
@@ -104,24 +115,28 @@
 			e.preventDefault();
 
 			// Variables to create text block
-			let pcardName = document.getElementById('pcardName').value;
-			let pAmount = parseFloat(document.getElementById('pAmount').value).toFixed(2);
-			let purpose = document.getElementById('purpose').value;
-			let justification = document.getElementById('justification').value;
-			let sponsorApproved = document.getElementById('sponsorCheck').checked ? ' This expense is on the sponsor-approved budget. ' : '';
-			let chartfield = document.getElementById('chartfield').value;
+			let pcardNameValue = document.getElementById('pcardName').value;
+			let pAmountValue = parseFloat(document.getElementById('pAmount').value).toFixed(2);
+			let purposeValue = document.getElementById('purpose').value;
+			let justificationValue = document.getElementById('justification').value;
+			let sponsorApprovedValue = document.getElementById('sponsorCheck').checked ? ' This expense is on the sponsor-approved budget. ' : '';
+			let chartfieldValue = document.getElementById('chartfield').value;
+			let billingDescriptionValue = billingDescription.value;
+			let accountCodeValue = accountCode.value;
+			let categoryCodeValue = categoryCode.value;
 		
 
-			let pcardRequestText = `Hello, I would like to request approval for the PCard charge of $${pAmount} on ${pcardName}'s PCard. ` +
-			`This expense was for ${purpose}${purpose.slice(-1) === '.' ? '' : '.'} ` +
-			`${justification} ` + 
-			sponsorApproved + 
-			`\n\nThe chartfield for this expense should be ${chartfield}. ` +
+			let pcardRequestText = `Hello, I would like to request approval for the PCard charge of $${pAmountValue} on ${pcardNameValue}'s PCard. ` +
+			`This expense was for ${purposeValue}${purposeValue.slice(-1) === '.' ? '' : '.'} ` +
+			`${justificationValue} ` + 
+			sponsorApprovedValue + 
+			`\n\nThe chartfield for this expense should be ${chartfieldValue}. ` +
 			// Ternary if module has been completed already
 			`${moduleCheck.checked ? 
 				"\n\n I have already gone into the PCard module and uploaded a receipt of this charge, as well as filled in the distribution/chartfield. " +
+				` The account code used was ${accountCodeValue} and the category code used was ${categoryCodeValue}. ` + 
 				"Please leave the billing description as is. Many thanks. " : 
-				`\n\n Please find the receipt attached with this ticket. Please also leave "${billingDescription.value}" in the billing description.`
+				`\n\n Please find the receipt attached with this ticket. Please also leave "${billingDescriptionValue}" in the billing description.`
 			}`
 
 			results.innerText = pcardRequestText;
