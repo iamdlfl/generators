@@ -28,6 +28,16 @@
 				<input type="text" name="pcardName" id="pcardName" class="form-control" required>
 			</div>
 			<div class="form-group">
+				<label for="multipleCheck">Do you want to process more than one charge at the same time?</label>
+				<input type="checkbox" name="multipleCheck" id="multipleCheck" class="form-check">
+			</div>
+			<div id="multipleForm">
+				<div class="form-group">
+					<label for="numOfCharges">How many charges are you processing?</label>
+					<input type="number" step="1" min="2" name="numOfCharges" id="numOfCharges" class="form-control">
+				</div>
+			</div>
+			<div class="form-group">
 				<label for="pAmount">Charge Amount*</label>
 				<input type="number" step="0.01" name="pAmount" id="pAmount" class="form-control" required>
 			</div>
@@ -77,38 +87,60 @@
 	<script>
 		// functions
 		const uncheck = (targetDiv, ...targetEls) => {
+			// To aid in hiding forms and clearing data
 			targetDiv.style['display'] = 'none';
 			for (let el of targetEls) {
 				el.value = '';
 			}
 		}
 
+		const hiddenForm = (checkbox, form, reverse, ...targetEls) => {
+			// To set up hidden forms that need to be cleared if re-hidden
+			// reverse should only be true if a field needs to be hidden when the checkbox is checked			
+			form.style['display'] = 'none';
+			if (reverse) {
+				checkbox.addEventListener('click', () => {
+					checkbox.checked ? 
+					uncheck(form, ...targetEls) :
+					form.style['display'] = 'block' 
+				});
+			} else {
+				checkbox.addEventListener('click', () => {
+					checkbox.checked ? 
+					form.style['display'] = 'block' : 
+					uncheck(form, ...targetEls)
+				});
+			}
+
+		}
+
 
 		// variable declarations
 		let pcardForm = document.getElementById('pcardForm');
-		let results = document.getElementById('results');
+		let multipleForm = document.getElementById('multipleForm');
 		let moduleForm = document.getElementById('moduleForm');
 		let billingForm = document.getElementById('billingForm');
+		let results = document.getElementById('results');
 
+		let multipleCheck = document.getElementById('multipleCheck');
 		let moduleCheck = document.getElementById('moduleCheck');
 		let billingDescription = document.getElementById('billingDescription');
 		let accountCode = document.getElementById('accountCode');
 		let categoryCode = document.getElementById('categoryCode');
+		let numOfCharges = document.getElementById('numOfCharges');
 
 
-		moduleForm.style['display'] = 'none';
+		hiddenForm(multipleCheck, multipleForm, false, numOfCharges);
+		hiddenForm(moduleCheck, moduleForm, false, accountCode, categoryCode);
+		hiddenForm(moduleCheck, billingForm, true, billingDescription);
 
-		// Event listeners to show and hide different forms/sections
-		moduleCheck.addEventListener('click', () => {
-			moduleCheck.checked ? 
-			moduleForm.style['display'] = 'block':
-			uncheck(moduleForm, accountCode, categoryCode);
+		numOfCharges.addEventListener('change', () => {
+			if (parseInt(numOfCharges.value) < 2) {
+				alert('Must be greater than 1');
+				numOfCharges.value = "2";
+			}
 		});
-		moduleCheck.addEventListener('click', () => {
-			moduleCheck.checked ? 
-			uncheck(billingForm, billingDescription) :
-			billingForm.style['display'] = 'block';
-		});
+
 
 		// Event listeners to return values from forms	
 		pcardForm.addEventListener('submit', (e) => {
