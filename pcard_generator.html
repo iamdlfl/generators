@@ -105,7 +105,7 @@
 		const hiddenForm = (checkbox, form, reverse, ...targetEls) => {
 			// To set up hidden forms that need to be cleared if re-hidden
 			// reverse should only be true if a field needs to be hidden when the checkbox is checked			
-			form.style['display'] = 'none';
+
 			if (reverse) {
 				checkbox.addEventListener('click', () => {
 					checkbox.checked ? 
@@ -113,6 +113,7 @@
 					form.style['display'] = 'block' 
 				});
 			} else {
+				form.style['display'] = 'none';
 				checkbox.addEventListener('click', () => {
 					checkbox.checked ? 
 					form.style['display'] = 'block' : 
@@ -122,22 +123,23 @@
 
 		}
 
-		const createFormGroup = (i) => {
-			const elementName = `pAmount${i}`;
+		const createFormGroup = (i, name, type, description, step="") => {
+			// Creates a form group, specifically for use in situations where multiple inputs of the same kind need to be created
+			const elementName = `${name}${i}`;
 				
 			const newDiv = document.createElement("div");
 			newDiv.className = 'form-group';
 
 			const newLabel = document.createElement('label');
 			newLabel.htmlFor = elementName;
-			newLabel.innerText = `Extra Charge ${i} Amount`
+			newLabel.innerText = `${description} ${i}`;
 
 			const newEl = document.createElement("input");
-			newEl.type = "number";
-			newEl.className = "form-control";
+			newEl.type = type;
+			newEl.className = `form-control ${name}-list`;
 			newEl.id = elementName;
-			newEl.step = '0.01';
 			newEl.name = elementName;
+			step && (newEl.step = step);
 
 			newDiv.appendChild(newLabel);
 			newDiv.appendChild(newEl);
@@ -146,34 +148,35 @@
 
 		// variable declarations
 			// Forms
-		let pcardForm = document.getElementById('pcardForm');
-		let multipleForm = document.getElementById('multipleForm');
-		let moduleForm = document.getElementById('moduleForm');
-		let billingForm = document.getElementById('billingForm');
+		const pcardForm = document.getElementById('pcardForm');
+		const multipleForm = document.getElementById('multipleForm');
+		const moduleForm = document.getElementById('moduleForm');
+		const billingForm = document.getElementById('billingForm');
 
 			// Divs
-		let results = document.getElementById('results');
-		let extraCharges = document.getElementById('extraCharges');
+		const results = document.getElementById('results');
+		const extraCharges = document.getElementById('extraCharges');
 
 			// Checks
-		let multipleCheck = document.getElementById('multipleCheck');
-		let moduleCheck = document.getElementById('moduleCheck');
+		const multipleCheck = document.getElementById('multipleCheck');
+		const moduleCheck = document.getElementById('moduleCheck');
 
 			// Inputs
-		let billingDescription = document.getElementById('billingDescription');
-		let accountCode = document.getElementById('accountCode');
-		let categoryCode = document.getElementById('categoryCode');
-		let numOfCharges = document.getElementById('numOfCharges');
+		const billingDescription = document.getElementById('billingDescription');
+		const accountCode = document.getElementById('accountCode');
+		const categoryCode = document.getElementById('categoryCode');
+		const numOfCharges = document.getElementById('numOfCharges');
 
 			// Text nodes
-		let numOfChargesInfo = document.getElementById('numOfChargesInfo');
+		const numOfChargesInfo = document.getElementById('numOfChargesInfo');
 
-		// Initialize hidden forms
+		// Prepare hidden forms
 		hiddenForm(multipleCheck, multipleForm, false, numOfCharges, numOfChargesInfo, extraCharges);
 		hiddenForm(moduleCheck, moduleForm, false, accountCode, categoryCode);
 		hiddenForm(moduleCheck, billingForm, true, billingDescription);
 
-		// Create number of charge inputs
+
+		// Create number of extra charge inputs
 		numOfCharges.addEventListener('change', () => {
 			extraCharges.innerHTML = "";
 			if (parseInt(numOfCharges.value) < 2) {
@@ -188,9 +191,9 @@
 			} else {
 				numOfChargesInfo.innerText = "";
 			}
-			let target = parseInt(numOfCharges.value) - 1;
+			const target = parseInt(numOfCharges.value) - 1;
 			for (let i = 1; i <= target; i++) {
-				extraCharges.appendChild(createFormGroup(i));
+				extraCharges.appendChild(createFormGroup(i, 'pAmount', 'number', 'Extra Charge Amount', "0.01"));
 			}
 		});
 
@@ -200,18 +203,31 @@
 			e.preventDefault();
 
 			// Variables to create text block
-			let pcardNameValue = document.getElementById('pcardName').value;
-			let pAmountValue = parseFloat(document.getElementById('pAmount').value).toFixed(2);
-			let purposeValue = document.getElementById('purpose').value;
-			let justificationValue = document.getElementById('justification').value;
-			let sponsorApprovedValue = document.getElementById('sponsorCheck').checked ? ' This expense is on the sponsor-approved budget. ' : '';
-			let chartfieldValue = document.getElementById('chartfield').value;
-			let billingDescriptionValue = billingDescription.value;
-			let accountCodeValue = accountCode.value;
-			let categoryCodeValue = categoryCode.value;
-		
+			const pcardNameValue = document.getElementById('pcardName').value;
+			const pAmountValue = parseFloat(document.getElementById('pAmount').value).toFixed(2);
+			const purposeValue = document.getElementById('purpose').value;
+			const justificationValue = document.getElementById('justification').value;
+			const sponsorApprovedValue = document.getElementById('sponsorCheck').checked ? ' This expense is on the sponsor-approved budget. ' : '';
+			const chartfieldValue = document.getElementById('chartfield').value;
+			const billingDescriptionValue = billingDescription.value;
+			const accountCodeValue = accountCode.value;
+			const categoryCodeValue = categoryCode.value;
 
-			let pcardRequestText = `Hello, I would like to request approval for the PCard charge of $${pAmountValue} on ${pcardNameValue}'s PCard. ` +
+			// Process the extra charge values
+			const extraChargesList = Array.from(document.getElementsByClassName('pAmount-list'));
+			let extraChargesText = '';
+			for (let el of extraChargesList) {
+				if (extraChargesList.indexOf(el) == extraChargesList.length-1) {
+					extraChargesText += ", and ";
+				} else {
+					extraChargesText += ", ";
+				}
+				extraChargesText += `$${parseFloat(el.value).toFixed(2)}`;
+			}
+
+			const pcardRequestText = `Hello, I would like to request approval for the PCard charge of ` +
+			`$${pAmountValue}${(multipleCheck.checked && extraChargesList) ? extraChargesText : ''} ` + 
+			`on ${pcardNameValue}'s PCard. ` +
 			`This expense was for ${purposeValue}${purposeValue.slice(-1) === '.' ? '' : '.'} ` +
 			`${justificationValue} ` + 
 			sponsorApprovedValue + 
