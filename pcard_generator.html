@@ -146,6 +146,17 @@
 			return newDiv;
 		}
 
+		const checkElsHaveValueAndSetMessage = (arrayToCheck, errorTextNode) => {
+			for (let el of arrayToCheck) {
+				if (!el.value) {
+					errorTextNode.innerText = "An element does not have a value, please ensure that you input a value for each element."
+					return false;
+				} 
+			}
+			errorTextNode.innerText = '';
+			return true;
+			}
+
 		// variable declarations
 			// Forms
 		const pcardForm = document.getElementById('pcardForm');
@@ -216,17 +227,19 @@
 			// Process the extra charge values
 			const extraChargesList = Array.from(document.getElementsByClassName('pAmount-list'));
 			let extraChargesText = '';
-			for (let el of extraChargesList) {
-				if (extraChargesList.indexOf(el) == extraChargesList.length-1) {
-					extraChargesText += ", and ";
-				} else {
-					extraChargesText += ", ";
+			if (checkElsHaveValueAndSetMessage(extraChargesList, numOfChargesInfo)) {
+				for (let el of extraChargesList) {
+					if (extraChargesList.indexOf(el) == extraChargesList.length-1) {
+						extraChargesText += ", and ";
+					} else {
+						extraChargesText += ", ";
+					}
+					el.value && (extraChargesText += `$${parseFloat(el.value).toFixed(2)}`);
 				}
-				extraChargesText += `$${parseFloat(el.value).toFixed(2)}`;
 			}
 
 			const pcardRequestText = `Hello, I would like to request approval for the PCard charge of ` +
-			`$${pAmountValue}${(multipleCheck.checked && extraChargesList) ? extraChargesText : ''} ` + 
+			`$${pAmountValue}${(multipleCheck.checked && extraChargesText) ? extraChargesText : ''} ` + 
 			`on ${pcardNameValue}'s PCard. ` +
 			`This expense was for ${purposeValue}${purposeValue.slice(-1) === '.' ? '' : '.'} ` +
 			`${justificationValue} ` + 
