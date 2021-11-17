@@ -27,20 +27,26 @@
 				<label for="pcardName">Name of PCard Holder*</label>
 				<input type="text" name="pcardName" id="pcardName" class="form-control" required>
 			</div>
+			<!-- Process multiple charges -->
 			<div class="form-group">
 				<label for="multipleCheck">Do you want to process more than one charge at the same time?</label>
 				<input type="checkbox" name="multipleCheck" id="multipleCheck" class="form-check">
 			</div>
 			<div id="multipleForm">
 				<div class="form-group">
+					<p class="text-danger" id="numOfChargesInfo"></p>
 					<label for="numOfCharges">How many charges are you processing?</label>
-					<input type="number" step="1" min="2" name="numOfCharges" id="numOfCharges" class="form-control">
+					<input type="number" step="1" min="2" max="10" name="numOfCharges" id="numOfCharges" class="form-control">
 				</div>
 			</div>
 			<div class="form-group">
 				<label for="pAmount">Charge Amount*</label>
 				<input type="number" step="0.01" name="pAmount" id="pAmount" class="form-control" required>
 			</div>
+			<div id="extraCharges">
+
+			</div>
+			<!-- Details on purchase -->
 			<div class="form-group">
 				<label for="purpose">What was this purchase for?*</label>
 				<input type="text" name="purpose" id="purpose" class="form-control" required>
@@ -53,6 +59,7 @@
 				<label for="sponsorCheck">Was this on the sponsor-approved budget?</label>
 				<input type="checkbox" name="sponsorCheck" id="sponsorCheck" class="form-check">
 			</div>
+			<!-- Chartfield and Module info -->
 			<div class="form-group">
 				<label for="chartfield">What is the chartfield for this expense?*</label>
 				<input type="text" name="chartfield" id="chartfield" class="form-control" required>
@@ -87,10 +94,11 @@
 	<script>
 		// functions
 		const uncheck = (targetDiv, ...targetEls) => {
-			// To aid in hiding forms and clearing data
+			// To aid in hiding forms and clearing data or messages
 			targetDiv.style['display'] = 'none';
 			for (let el of targetEls) {
 				el.value = '';
+				el.innerHTML = '';
 			}
 		}
 
@@ -114,30 +122,75 @@
 
 		}
 
+		const createFormGroup = (i) => {
+			const elementName = `pAmount${i}`;
+				
+			const newDiv = document.createElement("div");
+			newDiv.className = 'form-group';
+
+			const newLabel = document.createElement('label');
+			newLabel.htmlFor = elementName;
+			newLabel.innerText = `Extra Charge ${i} Amount`
+
+			const newEl = document.createElement("input");
+			newEl.type = "number";
+			newEl.className = "form-control";
+			newEl.id = elementName;
+			newEl.step = '0.01';
+			newEl.name = elementName;
+
+			newDiv.appendChild(newLabel);
+			newDiv.appendChild(newEl);
+			return newDiv;
+		}
 
 		// variable declarations
+			// Forms
 		let pcardForm = document.getElementById('pcardForm');
 		let multipleForm = document.getElementById('multipleForm');
 		let moduleForm = document.getElementById('moduleForm');
 		let billingForm = document.getElementById('billingForm');
-		let results = document.getElementById('results');
 
+			// Divs
+		let results = document.getElementById('results');
+		let extraCharges = document.getElementById('extraCharges');
+
+			// Checks
 		let multipleCheck = document.getElementById('multipleCheck');
 		let moduleCheck = document.getElementById('moduleCheck');
+
+			// Inputs
 		let billingDescription = document.getElementById('billingDescription');
 		let accountCode = document.getElementById('accountCode');
 		let categoryCode = document.getElementById('categoryCode');
 		let numOfCharges = document.getElementById('numOfCharges');
 
+			// Text nodes
+		let numOfChargesInfo = document.getElementById('numOfChargesInfo');
 
-		hiddenForm(multipleCheck, multipleForm, false, numOfCharges);
+		// Initialize hidden forms
+		hiddenForm(multipleCheck, multipleForm, false, numOfCharges, numOfChargesInfo, extraCharges);
 		hiddenForm(moduleCheck, moduleForm, false, accountCode, categoryCode);
 		hiddenForm(moduleCheck, billingForm, true, billingDescription);
 
+		// Create number of charge inputs
 		numOfCharges.addEventListener('change', () => {
+			extraCharges.innerHTML = "";
 			if (parseInt(numOfCharges.value) < 2) {
-				alert('Must be greater than 1');
+				numOfChargesInfo.innerText = "You must input a number greater than 1. Default of 2 has been set.";
 				numOfCharges.value = "2";
+			} else {
+				numOfChargesInfo.innerText = "";
+			}
+			if (parseInt(numOfCharges.value) > 10) {
+				numOfChargesInfo.innerText = "You must input a number less than or equal to 10. Default of 2 has been set.";
+				numOfCharges.value = "2";
+			} else {
+				numOfChargesInfo.innerText = "";
+			}
+			let target = parseInt(numOfCharges.value) - 1;
+			for (let i = 1; i <= target; i++) {
+				extraCharges.appendChild(createFormGroup(i));
 			}
 		});
 
