@@ -30,7 +30,7 @@
 			</div>
 			<div class="form-group">
 
-				<label for="name">Name of Honorarium Recipient</label>
+				<label for="name">Name of Honorarium Recipient*</label>
 				<input type="text" id="name" name="name" required class="form-control">
 			</div>
 			<div class="form-group" id="indiForm">
@@ -42,16 +42,16 @@
 			<!-- Start Payment Details -->
 			<div class="form-group">
 
-				<label for="supplierNum">Supplier Number</label>
+				<label for="supplierNum">Supplier Number*</label>
 				<input type="text" id="supplierNum" name="supplierNum" class="form-control" required>
 			</div>
 			<div class="form-group">
 
-				<label for="honAmount">Honorarium Amount</label>
+				<label for="honAmount">Honorarium Amount*</label>
 				<input type="number" id="honAmount" name="honAmount"  class="form-control" required>
 			</div>
 			<div class="form-group">
-				<label for="service">Description of Service Rendered and Justification (structure as normal)</label>
+				<label for="service">Description of Service Rendered and Justification (structure as normal)*</label>
 				<textarea cols="30" rows="10" type="text" id="service" name="service" class="form-control" required></textarea>
 			</div>
 			<!-- <div class="form-group">
@@ -63,7 +63,7 @@
 				<input type="text" id="scope" name="scope" class="form-control">
 			</div> -->
 			<div class="form-group">
-				<label for="chartfield">Chartfield</label>
+				<label for="chartfield">Chartfield*</label>
 				<input type="text" id="chartfield" name="chartfield" class="form-control" required>
 			</div>
 			<!-- End Payment Details -->
@@ -138,6 +138,7 @@
 			targetDiv.style['display'] = targetStyle;
 			for (let el of targetEls) {
 				el.value = '';
+				el.innerHTML = '';
 			}
 		};
 
@@ -148,6 +149,27 @@
 		const enable = (targetEl) => {
 			targetEl.disabled = false;
 		};
+
+		const hiddenForm = (checkbox, form, reverse, ...targetEls) => {
+			// To set up hidden forms that need to be cleared if re-hidden
+			// reverse should only be true if a field needs to be hidden when the checkbox is checked			
+
+			if (reverse) {
+				checkbox.addEventListener('click', () => {
+					checkbox.checked ? 
+					toggleCheck(form, 'none', ...targetEls) :
+					toggleCheck(form, 'block', ...targetEls)
+				});
+			} else {
+				form.style['display'] = 'none';
+				checkbox.addEventListener('click', () => {
+					checkbox.checked ? 
+					toggleCheck(form, 'block', ...targetEls) : 
+					toggleCheck(form, 'none', ...targetEls)
+				});
+			}
+
+		}
 
 
 		// variable declarations
@@ -177,32 +199,15 @@
 		let sourceElement = document.getElementById('source');
 
 		// Hiding divs to start form
-		currencyForm.style['display'] = 'none';
-		indiForm.style['display'] = 'none';
-		sponsorApproved.style['display'] = 'none';
 		exchangeForm.style['display'] = 'none';
 
 		// Event listeners to show and hide different forms/sections
-		currencyCheck.addEventListener('click', () => {
-			currencyCheck.checked ? 
-			currencyForm.style['display'] = 'block' : 
-			toggleCheck(currencyForm, 'none', currencyTypeElement, currencyCodeElement);
-		})
-		individualCheck.addEventListener('click', () => {
-			individualCheck.checked ? 
-			indiForm.style['display'] = 'block' :
-			toggleCheck(indiForm, 'none', serviceNameElement);
-		});
-		sponsorCheck.addEventListener('click', () => {
-			sponsorCheck.checked ? 
-			sponsorApproved.style['display'] = 'block' :
-			sponsorApproved.style['display'] = 'none';
-		});
-		exchangeCheck.addEventListener('click', () => {
-			exchangeCheck.checked ?
-			toggleCheck(exchangeForm, 'none', currencyRateElement, foreignValueElement, sourceElement) :
-			toggleCheck(exchangeForm, 'block', currencyRateElement, foreignValueElement, sourceElement);
-		});
+		hiddenForm(currencyCheck, currencyForm, false, currencyTypeElement, currencyCodeElement);
+		hiddenForm(individualCheck, indiForm, false, serviceNameElement);
+		hiddenForm(sponsorCheck, sponsorApproved, false, []);
+		hiddenForm(exchangeCheck, exchangeForm, true, currencyRateElement, foreignValueElement, sourceElement);
+
+		// Event listeners to perform other modifications to form elements
 		specifiedCheck.addEventListener('click', () => {
 			specifiedCheck.checked ? 
 			sponsorText.innerText = "This expense is specificly outlined in the grant and is included on the sponsor-approved budget." :
