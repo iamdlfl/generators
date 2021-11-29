@@ -223,13 +223,17 @@
 			const billingDescriptionValue = billingDescription.value;
 			const accountCodeValue = accountCode.value;
 			const categoryCodeValue = categoryCode.value;
+			const plural = multipleCheck.checked;
 
 			// Process the extra charge values
 			const extraChargesList = Array.from(document.getElementsByClassName('pAmount-list'));
 			let extraChargesText = '';
 			if (checkElsHaveValueAndSetMessage(extraChargesList, numOfChargesInfo)) {
+				console.log(extraChargesList.length);
 				for (let el of extraChargesList) {
-					if (extraChargesList.indexOf(el) == extraChargesList.length-1) {
+					if (extraChargesList.length == 1 && extraChargesList.indexOf(el) == extraChargesList.length-1) {
+						extraChargesText += " and ";
+					} else if (extraChargesList.indexOf(el) == extraChargesList.length-1) {
 						extraChargesText += ", and ";
 					} else {
 						extraChargesText += ", ";
@@ -238,20 +242,23 @@
 				}
 			}
 
-			const pcardRequestText = `Hello, I would like to request approval for the PCard charge of ` +
-			`$${pAmountValue}${(multipleCheck.checked && extraChargesText) ? extraChargesText : ''} ` + 
-			`on ${pcardNameValue}'s PCard. ` +
-			`This expense was for ${purposeValue}${purposeValue.slice(-1) === '.' ? '' : '.'} ` +
-			`${justificationValue} ` + 
-			sponsorApprovedValue + 
-			`\n\nThe chartfield for this expense should be ${chartfieldValue}. ` +
+			const introSentence = `Hello, I would like to request approval for the PCard ${plural ? 'charges' : 'charge'} of ` +
+			`$${pAmountValue}${(multipleCheck.checked && extraChargesText) ? extraChargesText : ''} on ${pcardNameValue}'s PCard. `;
+			
+			const justificationSentence = `${plural ? 'These expenses were' : 'This expense was'} for ${purposeValue}${purposeValue.slice(-1) === '.' ? '' : '.'} `+
+			`${justificationValue} ${sponsorApprovedValue} `;
+			
+			const chartfieldSentence = `\n\nThe chartfield for ${plural ? 'these expenses' : 'this expense'} should be ${chartfieldValue}. ` 
+
 			// Ternary if module has been completed already
-			`${moduleCheck.checked ? 
+			const moduleSentence = `${moduleCheck.checked ? 
 				"\n\n I have already gone into the PCard module and uploaded a receipt of this charge, as well as filled in the distribution/chartfield. " +
 				` The account code used was ${accountCodeValue} and the category code used was ${categoryCodeValue}. ` + 
 				"Please leave the billing description as is. Many thanks. " : 
 				`\n\n Please find the receipt attached with this ticket. Please also leave "${billingDescriptionValue}" in the billing description.`
 			}`
+
+			const pcardRequestText = introSentence + justificationSentence + chartfieldSentence + moduleSentence;
 
 			results.innerText = pcardRequestText;
 
