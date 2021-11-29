@@ -241,7 +241,8 @@
 					el.value && (extraChargesText += `$${parseFloat(el.value).toFixed(2)}`);
 				}
 			}
-
+			
+			// Different sentences/paragraphs to aid in readability
 			const introSentence = `Hello, I would like to request approval for the PCard ${plural ? 'charges' : 'charge'} of ` +
 			`$${pAmountValue}${(multipleCheck.checked && extraChargesText) ? extraChargesText : ''} on ${pcardNameValue}'s PCard. `;
 			
