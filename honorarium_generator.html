@@ -196,12 +196,12 @@
 		let serviceNameElement = document.getElementById('indiName');
 		let currencyRateElement = document.getElementById('rate');
 		let foreignValueElement = document.getElementById('amount');
-		let sourceElement = document.getElementById('source');
+		let calcSourceElement = document.getElementById('source');
 
 		// Hiding divs to start form
 		exchangeForm.style['display'] = 'none';
 
-		// Event listeners to show and hide different forms/sections
+		// Setting up to show and hide different forms/sections
 		hiddenForm(currencyCheck, currencyForm, false, currencyTypeElement, currencyCodeElement);
 		hiddenForm(individualCheck, indiForm, false, serviceNameElement);
 		hiddenForm(sponsorCheck, sponsorApproved, false, []);
@@ -235,8 +235,6 @@
 			let supplierNumber = document.getElementById('supplierNum').value;
 			let honorariumAmount = parseInt(document.getElementById('honAmount').value);
 			let service = document.getElementById('service').value;
-			// let grant = document.getElementById('grant').value;
-			// let scope = document.getElementById('scope').value;
 			let chartfield = document.getElementById('chartfield').value;
 			
 				// Foreign Currency form inputs 
@@ -244,7 +242,7 @@
 			let currencyCode = currencyCodeElement.value;
 			let currencyRate = parseFloat(currencyRateElement.value);
 			let foreignValue = foreignValueElement.value;
-			let source = sourceElement.value;
+			let source = calcSourceElement.value;
 			let treasuryManagementInfo = `Please send the attached wire form to Treasury Management (investments@admin.ufl.edu) once the voucher is created. ` + 
 			`They will make the calculation of the conversion rate when they issue the payment.`;
 			
@@ -298,7 +296,7 @@
 					return response.json();
 				})
 				.then(res => {
-					exchangeValue = res.rates[`${currencyCode}`].rate_for_amount;
+					exchangeValue = parseFloat(res.rates[`${currencyCode}`].rate_for_amount).toFixed(2);
 					foreignText = `${ currencyCheck.checked ? 
 						` \n\n Please note that Dr. ${name} has been set up in the vendor file to receive this wire transfer in ${currencyType} (${currencyCode}). ` +
 						`${treasuryManagementInfo} As of right now $${honorariumAmount} is equivalent to ` +
