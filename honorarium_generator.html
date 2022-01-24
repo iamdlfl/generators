@@ -133,6 +133,7 @@
 
 	<script src="./keys.js"></script>
 	<script>
+
 		// functions
 		const toggleCheck = (targetDiv, targetStyle, ...targetEls) => {
 			targetDiv.style['display'] = targetStyle;
@@ -205,8 +206,7 @@
 		hiddenForm(currencyCheck, currencyForm, false, currencyTypeElement, currencyCodeElement);
 		hiddenForm(individualCheck, indiForm, false, serviceNameElement);
 		hiddenForm(sponsorCheck, sponsorApproved, false, []);
-		hiddenForm(exchangeCheck, exchangeForm, true, currencyRateElement, foreignValueElement, sourceElement);
-
+		hiddenForm(exchangeCheck, exchangeForm, true, currencyRateElement, foreignValueElement, calcSourceElement);
 		// Event listeners to perform other modifications to form elements
 		specifiedCheck.addEventListener('click', () => {
 			specifiedCheck.checked ? 
@@ -223,7 +223,6 @@
 			disable(currencyRateElement) :
 			enable(currencyRateElement);
 		});
-
 
 		// Event listener to return result from form
 		honForm.addEventListener('submit', (e) => {
